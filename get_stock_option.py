@@ -88,10 +88,10 @@ if __name__ == '__main__':
                  'values (%(contract_month)s,%(report_date)s,%(contract_month)s,' \
                  '%(strike)s,%(type)s,%(open)s,%(high)s,%(low)s,%(close)s,' \
                  '%(iv)s,%(open_interest)s,%(oi_change)s)'
-    print(df_dict['TCH'])
-    cursor.executemany(data_query, df_dict['TCH'].to_dict(orient="records"))
-    logger.info('Inserted all record. Commit the change...')
-    conn.commit()
+    for item in df_dict.keys():
+        cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
+        logger.info(f'Inserted all record for{item} . Commit the change...')
+        conn.commit()
     conn.close()
 
 
