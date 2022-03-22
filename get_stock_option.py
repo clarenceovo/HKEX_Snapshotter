@@ -7,9 +7,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 pd.set_option('display.expand_frame_repr', False)
-import os
+import sys
 import mysql.connector
 import warnings
+
 warnings.filterwarnings('ignore')
 def get_tag(tag_tr)->list:
     tag = []
@@ -60,44 +61,54 @@ if __name__ == '__main__':
     db_cred = json.load(open('config/db.json'))
     conn = mysql.connector.connect(**db_cred)
     cursor = conn.cursor(buffered=True)
+
     start_date = datetime(2021,1,1)
+    if len(sys.argv)>1:
+        try:
+            start_date = datetime.strptime(sys.argv[1],format="%Y-%m-%d")
+        except:
+            pass
     today = datetime.now().timestamp()
     while start_date.timestamp() < today:
-        date_str = start_date.strftime('%y%m%d')
-        root_path = "https://www.hkex.com.hk/"
-        content_url = f"eng/stat/dmstat/dayrpt/dqe{date_str}.htm"
-        df_dict = {}
-        quote_dict={}
-        res = requests.get(root_path+content_url)
+        try:
+            date_str = start_date.strftime('%y%m%d')
+            root_path = "https://www.hkex.com.hk/"
+            content_url = f"eng/stat/dmstat/dayrpt/dqe{date_str}.htm"
+            df_dict = {}
+            quote_dict={}
+            res = requests.get(root_path+content_url)
 
-        res_soup = BSHTML(res.text,features="lxml")
-        report_date = None
-        if len(res_soup.find_all('a'))==4:
-            logger.info(f'{start_date} is not available')
-            start_date = start_date +timedelta(days=1)
-        for item in res_soup.find_all('a'):
-            if item.get("name") is not None:
-                if item.get("name") != 'SUMMARY':
-                    df = content_to_df(item,quote_dict[item.get("name")],report_date)
-                    df_dict[item.get("name")]=df
-                else:
-                    summary = item.text.replace('\r','')
-                    row_summary = summary.split('\n')
-                    date_str = ' '.join(row_summary[7].replace('\r','').split(' ')[-3:])
-                    quote_dict = get_quote_list(row_summary[12:])
-                    report_date = datetime.strptime(date_str, "%d %b %Y")
-                    #print(report_date)
+            res_soup = BSHTML(res.text,features="lxml")
+            report_date = None
+            if len(res_soup.find_all('a'))==4:
+                logger.info(f'{start_date} is not available')
+                start_date = start_date +timedelta(days=1)
+            for item in res_soup.find_all('a'):
+                if item.get("name") is not None:
+                    if item.get("name") != 'SUMMARY':
+                        df = content_to_df(item,quote_dict[item.get("name")],report_date)
+                        df_dict[item.get("name")]=df
+                    else:
+                        summary = item.text.replace('\r','')
+                        row_summary = summary.split('\n')
+                        date_str = ' '.join(row_summary[7].replace('\r','').split(' ')[-3:])
+                        quote_dict = get_quote_list(row_summary[12:])
+                        report_date = datetime.strptime(date_str, "%d %b %Y")
+                        #print(report_date)
 
-        data_query = 'INSERT IGNORE INTO stock_option_oi (stock_id,record_date,contract_month,strike,type,' \
-                     'open,high,low,close,iv,open_interest,oi_change) ' \
-                     'values (%(contract_month)s,%(report_date)s,%(contract_month)s,' \
-                     '%(strike)s,%(type)s,%(open)s,%(high)s,%(low)s,%(close)s,' \
-                     '%(iv)s,%(open_interest)s,%(oi_change)s)'
-        for item in df_dict.keys():
-            cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
-            logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
-            conn.commit()
-        start_date = start_date + timedelta(days=1)
+            data_query = 'INSERT IGNORE INTO stock_option_oi (stock_id,record_date,contract_month,strike,type,' \
+                         'open,high,low,close,iv,open_interest,oi_change) ' \
+                         'values (%(contract_month)s,%(report_date)s,%(contract_month)s,' \
+                         '%(strike)s,%(type)s,%(open)s,%(high)s,%(low)s,%(close)s,' \
+                         '%(iv)s,%(open_interest)s,%(oi_change)s)'
+            for item in df_dict.keys():
+                cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
+                #logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
+                conn.commit()
+            start_date = start_date + timedelta(days=1)
+        except Exception as e:
+            logger.error(e)
+            logger.info(f"Date:{start_date.strftime('%Y-%m-%d')} failed to get data ")
     conn.close()
 
 
