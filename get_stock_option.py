@@ -95,7 +95,7 @@ if __name__ == '__main__':
                      '%(iv)s,%(open_interest)s,%(oi_change)s)'
         for item in df_dict.keys():
             cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
-            logger.info(f'Inserted all record for {item} . Commit the change...')
+            logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
             conn.commit()
     conn.close()
 
