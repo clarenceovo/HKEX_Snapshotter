@@ -97,6 +97,7 @@ if __name__ == '__main__':
             cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
             logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
             conn.commit()
+        start_date = start_date + timedelta(days=1)
     conn.close()
 
 
