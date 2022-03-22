@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
             data_query = 'INSERT IGNORE INTO stock_option_oi (stock_id,record_date,contract_month,strike,type,' \
                          'open,high,low,close,iv,open_interest,oi_change) ' \
-                         'values (%(contract_month)s,%(report_date)s,%(contract_month)s,' \
+                         'values (%(stock_id)s,%(report_date)s,%(contract_month)s,' \
                          '%(strike)s,%(type)s,%(open)s,%(high)s,%(low)s,%(close)s,' \
                          '%(iv)s,%(open_interest)s,%(oi_change)s)'
             for item in df_dict.keys():
