@@ -110,10 +110,11 @@ if __name__ == '__main__':
                 cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
                 #logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
                 conn.commit()
-
+            logger.info(f"SUCCESS!Data insertion for {start_date.strftime('%Y-%m-%d')} is done!")
         except Exception as e:
             logger.error(e)
             logger.info(f"Date:{start_date.strftime('%Y-%m-%d')} failed to get data ")
+            continue
     conn.close()
 
 
