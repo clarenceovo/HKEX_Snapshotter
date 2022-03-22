@@ -72,8 +72,9 @@ if __name__ == '__main__':
             pass
 
     today = datetime.now().timestamp()
-    
+
     while start_date.timestamp() < today:
+        start_date = start_date + timedelta(days=1)
         try:
             date_str = start_date.strftime('%y%m%d')
             root_path = "https://www.hkex.com.hk/"
@@ -84,9 +85,9 @@ if __name__ == '__main__':
 
             res_soup = BSHTML(res.text,features="lxml")
             report_date = None
-            if len(res_soup.find_all('a'))==4:
+            if len(res_soup.find_all('a'))<10:
                 logger.info(f'{start_date} is not available')
-                start_date = start_date +timedelta(days=1)
+                continue
             for item in res_soup.find_all('a'):
                 if item.get("name") is not None:
                     if item.get("name") != 'SUMMARY':
@@ -109,7 +110,7 @@ if __name__ == '__main__':
                 cursor.executemany(data_query, df_dict[item].to_dict(orient="records"))
                 #logger.info(f'Inserted all record for {item} @ {start_date.strftime("%Y-%m-%d")} . Commit the change...')
                 conn.commit()
-            start_date = start_date + timedelta(days=1)
+
         except Exception as e:
             logger.error(e)
             logger.info(f"Date:{start_date.strftime('%Y-%m-%d')} failed to get data ")
