@@ -65,8 +65,11 @@ if __name__ == '__main__':
     start_date = datetime(2021,1,1)
     if len(sys.argv)>1:
         try:
-            start_date = datetime.strptime(sys.argv[1],format="%Y-%m-%d")
-        except:
+            logger.info('trigger')
+            str_date = sys.argv[1]
+            start_date = datetime.strptime(str_date,"%Y-%m-%d")
+        except Exception as e:
+            print(e)
             pass
     today = datetime.now().timestamp()
     while start_date.timestamp() < today:
