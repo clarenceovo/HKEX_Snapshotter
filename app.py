@@ -16,7 +16,7 @@ if __name__ == '__main__':
     name_list =[]
     mode = sys.argv[1]
     timeslot = sys.argv[2] #AM or PM
-
+    print(sys.argv)
 
     if mode == "DEV":
         file  = open('ashtmain.htm')
@@ -31,6 +31,7 @@ if __name__ == '__main__':
             web_url = 'https://www.hkex.com.hk/eng/stat/smstat/ssturnover/ncms/ashtmain.htm'
         ret = requests.get(web_url).text
         soup=BeautifulSoup(ret,'html.parser')
+    #print(ret)
     logger.info(f'MODE:{mode}. Session:{timeslot}')
     #Get the body content
     data_body = soup.find('body').findChildren(recursive=False)[0].get_text()
@@ -95,4 +96,5 @@ if __name__ == '__main__':
         #Insert the record into DB
 
     else:
-        logger.error('The result is not available in HKEX website.')
+        print(data)
+        #logger.error('The result is not available in HKEX website.')
