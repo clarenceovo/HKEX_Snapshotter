@@ -73,6 +73,7 @@ if __name__ == '__main__':
             for item in res_soup.findAll('a'):
                 if item.get("name") in ['month1','month2']:
                     df = process_data(item.next,start_date.strftime('%Y-%m-%d'))
+                    df['contract_month'] = pd.to_datetime(df['contract_month'], format="%b%y")
                     cursor.executemany(data_query, df.to_dict(orient="records"))
             conn.commit()
             logger.info(f"SUCCESS!Data insertion for {start_date.strftime('%Y-%m-%d')} is done!")
