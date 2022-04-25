@@ -69,12 +69,12 @@ if __name__ == '__main__':
                          '%(strike)s,%(type)s,%(open)s,%(high)s,%(low)s,%(close)s,' \
                          '%(d1volume)s,%(volume)s,' \
                          '%(iv)s,%(open_interest)s,%(oi_change)s)'
+            logger.info(f"Inserting data for {start_date.strftime('%Y-%m-%d')}.....")
             for item in res_soup.findAll('a'):
                 if item.get("name") in ['month1','month2']:
-                    logger.info(f"Inserting data for {start_date.strftime('%Y-%m-%d')}.....")
                     df = process_data(item.next,start_date.strftime('%Y-%m-%d'))
                     cursor.executemany(data_query, df.to_dict(orient="records"))
-                    conn.commit()
+            conn.commit()
             logger.info(f"SUCCESS!Data insertion for {start_date.strftime('%Y-%m-%d')} is done!")
 
             break
