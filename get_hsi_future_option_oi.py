@@ -22,9 +22,11 @@ def process_data(content,report_date):
         if len(row)>10:
             row = [x for x in row.split(' ') if x and x != '|']
             if '-'  in row[0]:
-                result.append([row[0],int(row[1])
-                                  ,row[2],row[8],row[9],row[10],row[11],row[12],row[13],int(row[7]),int(row[14]),row[18],row[19]])
-
+                try:
+                    result.append([row[0],int(row[1])
+                                      ,row[2],row[8],row[9],row[10],row[11],row[12],row[13],int(row[7]),int(row[14]),row[18],row[19]])
+                except:
+                    pass
     ret = pd.DataFrame(result)
     ret.columns = header
     ret['report_date']=report_date
