@@ -38,7 +38,7 @@ if __name__ == '__main__':
     conn = mysql.connector.connect(**db_cred)
     cursor = conn.cursor(buffered=True)
 
-    start_date = datetime(2022,4,20)
+    start_date = datetime(2025,9,20)
     if len(sys.argv)>1:
         try:
             str_date = sys.argv[1]
@@ -75,12 +75,11 @@ if __name__ == '__main__':
             for item in res_soup.findAll('a'):
                 if item.get("name") in ['month1','month2']:
                     df = process_data(item.next,start_date.strftime('%Y-%m-%d'))
-                    df['contract_month'] = pd.to_datetime(df['contract_month'], format="%b-%y")
+                    df['contract_month'] = pd.to_datetime(df['contract_month'], format="%b-%y").dt.strftime('%Y-%m-01')
                     cursor.executemany(data_query, df.to_dict(orient="records"))
             conn.commit()
             logger.info(f"SUCCESS!Data insertion for {start_date.strftime('%Y-%m-%d')} is done!")
 
-            break
         except Exception as e:
             pass
             logger.error(e)

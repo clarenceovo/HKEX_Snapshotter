@@ -62,7 +62,7 @@ if __name__ == '__main__':
     conn = mysql.connector.connect(**db_cred)
     cursor = conn.cursor(buffered=True)
 
-    start_date = datetime.now()
+    start_date = datetime.now() - timedelta(days=1)
 
     try:
         date_str = start_date.strftime('%y%m%d')

@@ -62,7 +62,7 @@ if __name__ == '__main__':
     conn = mysql.connector.connect(**db_cred)
     cursor = conn.cursor(buffered=True)
 
-    start_date = datetime(2021,1,1)
+    start_date = datetime(2024,4,1)
     if len(sys.argv)>1:
         try:
             str_date = sys.argv[1]
